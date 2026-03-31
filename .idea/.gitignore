@@ -1,3 +1,16 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+*.iml
+.idea/
+# Ignore all .pyc files
+*.pyc
+# Ignore __pycache__ directories
+__pycache__/
+# Ignore log files
+*.log
+# Ignore virtual environment directories
+venv/
+env/
+#Ignore csv files
+*.csv

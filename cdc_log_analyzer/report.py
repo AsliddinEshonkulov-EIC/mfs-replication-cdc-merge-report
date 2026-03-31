@@ -33,10 +33,12 @@ def _build_html(results: List[AnalysisResult]) -> str:
     # Prepare data for each run
     runs_data = []
     for i, result in enumerate(results):
+        run_id = result.job_run.job_run_id
+        
         runs_data.append({
             'id': f'run{i+1}',
-            'label': f'Run {i+1}',
-            'job_run_id': result.job_run.job_run_id[:20] + '...' if len(result.job_run.job_run_id) > 20 else result.job_run.job_run_id,
+            'label': run_id or f'Run {i+1}',
+            'job_run_id': run_id,
             'job_name': result.job_run.job_name,
             'duration': format_duration(result.job_run.duration_sec),
             'tables': result.job_run.table_count,
