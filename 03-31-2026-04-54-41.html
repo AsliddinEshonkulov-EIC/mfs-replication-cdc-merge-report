@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDC Merge Log Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 20px; }
+        h2 { font-size: 1.1rem; font-weight: 600; color: #555; margin-bottom: 15px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+        .tab-btn.active { background: #3498db; color: white; }
+        .tab-btn:hover { background: #bbb; }
+        .tab-btn.active:hover { background: #2980b9; }
+        .run-content { display: none; }
+        .run-content.active { display: block; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .summary { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+        .summary-item { font-size: 0.9rem; }
+        .summary-item strong { color: #333; }
+        .summary-item span { color: #666; }
+        .chart-container { position: relative; height: 300px; }
+        .chart-container.tall { height: 500px; }
+        .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; font-size: 0.8rem; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 2px; }
+        .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CDC Merge Log Analysis</h1>
+        <div class="tabs"><button class="tab-btn active" onclick="showRun('run1')">Run 1</button></div>
+        
+    <div id="run1" class="run-content active">
+        <div class="card">
+            <div class="summary">
+                <div class="summary-item"><strong>Job:</strong> <span>cdl-glue-job-mfs-replication-cdc-merge</span></div>
+                <div class="summary-item"><strong>Duration:</strong> <span>5h 16m</span></div>
+                <div class="summary-item"><strong>Tables:</strong> <span>23</span></div>
+                <div class="summary-item"><strong>Cycles:</strong> <span>175</span></div>
+                <div class="summary-item"><strong>Files:</strong> <span>2138</span></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Time Spent by Phase</h2>
+            <p class="subtitle">Where is the job spending its time? Sorted by total time.</p>
+            <div class="chart-container">
+                <canvas id="run1-phase-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Per-Table Breakdown</h2>
+            <p class="subtitle">Each bar shows phase distribution. Hover for details.</p>
+            <div class="chart-container tall">
+                <canvas id="run1-table-chart"></canvas>
+            </div>
+            <div class="legend"><div class="legend-item"><div class="legend-color" style="background:#95a5a6"></div>Setup</div>
+<div class="legend-item"><div class="legend-color" style="background:#f39c12"></div>Read Parquet</div>
+<div class="legend-item"><div class="legend-color" style="background:#3498db"></div>Upsert to Branch</div>
+<div class="legend-item"><div class="legend-color" style="background:#e74c3c"></div>Data Quality</div>
+<div class="legend-item"><div class="legend-color" style="background:#9b59b6"></div>Fast Forward</div>
+<div class="legend-item"><div class="legend-color" style="background:#2ecc71"></div>Populate AN/MID</div>
+<div class="legend-item"><div class="legend-color" style="background:#7f8c8d"></div>Cleanup</div></div>
+        </div>
+    </div>
+    </div>
+    
+    <script>
+        const chartData = {"run1": {"phases": [{"name": "Data Quality", "total": 6666.597999999998, "formatted": "1h 51m", "avg_formatted": "38s", "pct": 36.040426097372006}, {"name": "Upsert to Branch", "total": 6121.334000000001, "formatted": "1h 42m", "avg_formatted": "35s", "pct": 33.09266370108572}, {"name": "Populate AN/MID", "total": 4374.490999999998, "formatted": "1h 12m", "avg_formatted": "25s", "pct": 23.649021524789543}, {"name": "Fast Forward", "total": 929.6609999999996, "formatted": "15m 29s", "avg_formatted": "5s", "pct": 5.025858551259421}, {"name": "Read Parquet", "total": 216.77999999999997, "formatted": "3m 36s", "avg_formatted": "2s", "pct": 1.1719386063758912}, {"name": "Cleanup", "total": 124.07199999999999, "formatted": "2m 4s", "avg_formatted": "1s", "pct": 0.6707480707180994}, {"name": "Setup", "total": 64.62, "formatted": "1m 4s", "avg_formatted": "1s", "pct": 0.34934344839934545}], "tables": [{"name": "article", "total": 3538.4670000000006, "cycles": 11, "phases": {"Upsert to Branch": 2599.2820000000006, "Data Quality": 475.595, "Fast Forward": 64.35300000000001, "Populate AN/MID": 383.014, "Cleanup": 11.3, "Setup": 3.019, "Read Parquet": 1.904}}, {"name": "issue", "total": 3252.178, "cycles": 10, "phases": {"Upsert to Branch": 305.52199999999993, "Data Quality": 2607.455, "Fast Forward": 156.96299999999997, "Populate AN/MID": 168.51000000000002, "Cleanup": 6.205, "Setup": 4.412, "Read Parquet": 3.1109999999999998}}, {"name": "keywords", "total": 1233.178, "cycles": 11, "phases": {"Setup": 4.050000000000001, "Read Parquet": 4.144, "Upsert to Branch": 212.142, "Data Quality": 196.038, "Fast Forward": 64.414, "Populate AN/MID": 743.3259999999999, "Cleanup": 9.064}}, {"name": "artabx", "total": 1202.0059999999999, "cycles": 10, "phases": {"Setup": 3.046, "Read Parquet": 4.3629999999999995, "Upsert to Branch": 200.293, "Data Quality": 524.785, "Fast Forward": 38.827999999999996, "Populate AN/MID": 421.28200000000004, "Cleanup": 9.408999999999999}}, {"name": "artlang", "total": 954.9909999999999, "cycles": 11, "phases": {"Upsert to Branch": 232.84900000000002, "Data Quality": 180.755, "Fast Forward": 69.65299999999999, "Populate AN/MID": 459.745, "Cleanup": 9.918000000000001, "Read Parquet": 1.175, "Setup": 0.896}}, {"name": "artkwd", "total": 940.475, "cycles": 11, "phases": {"Setup": 3.2379999999999995, "Read Parquet": 3.9690000000000003, "Upsert to Branch": 244.719, "Data Quality": 206.17199999999997, "Fast Forward": 34.934, "Populate AN/MID": 438.246, "Cleanup": 9.197000000000001}}, {"name": "doian", "total": 883.2750000000001, "cycles": 11, "phases": {"Upsert to Branch": 185.38799999999998, "Data Quality": 173.527, "Fast Forward": 60.474000000000004, "Populate AN/MID": 449.69399999999996, "Cleanup": 9.404000000000002, "Setup": 2.292, "Read Parquet": 2.496}}, {"name": "sician", "total": 776.3340000000001, "cycles": 11, "phases": {"Setup": 5.108, "Read Parquet": 4.724, "Upsert to Branch": 198.43399999999997, "Data Quality": 144.274, "Fast Forward": 26.360000000000003, "Populate AN/MID": 387.84099999999995, "Cleanup": 9.593}}, {"name": "artlc", "total": 711.828, "cycles": 7, "phases": {"Setup": 3.149, "Read Parquet": 2.735, "Upsert to Branch": 274.47999999999996, "Data Quality": 137.447, "Fast Forward": 16.258000000000003, "Populate AN/MID": 271.27, "Cleanup": 6.489}}, {"name": "affiliation", "total": 650.9269999999999, "cycles": 11, "phases": {"Setup": 2.818, "Read Parquet": 4.8999999999999995, "Upsert to Branch": 216.50400000000002, "Data Quality": 174.14, "Fast Forward": 30.511000000000003, "Populate AN/MID": 215.38600000000002, "Cleanup": 6.667999999999999}}, {"name": "artauth", "total": 573.439, "cycles": 10, "phases": {"Setup": 2.002, "Read Parquet": 2.1340000000000003, "Upsert to Branch": 343.264, "Data Quality": 194.926, "Fast Forward": 26.369, "Populate AN/MID": 0.036000000000000004, "Cleanup": 4.708}}, {"name": "authafflcode", "total": 564.265, "cycles": 10, "phases": {"Setup": 2.8339999999999996, "Read Parquet": 1.757, "Upsert to Branch": 290.192, "Data Quality": 236.35800000000003, "Fast Forward": 28.288, "Populate AN/MID": 0.099, "Cleanup": 4.737}}, {"name": "publisher", "total": 502.1089999999999, "cycles": 2, "phases": {"Setup": 1.607, "Read Parquet": 161.24, "Upsert to Branch": 42.809999999999995, "Data Quality": 248.237, "Fast Forward": 17.371, "Populate AN/MID": 29.83, "Cleanup": 1.014}}, {"name": "author", "total": 493.27099999999996, "cycles": 11, "phases": {"Setup": 5.845, "Read Parquet": 4.245, "Upsert to Branch": 223.14200000000002, "Data Quality": 195.46799999999996, "Fast Forward": 59.056000000000004, "Populate AN/MID": 0.038, "Cleanup": 5.476999999999999}}, {"name": "delc", "total": 484.206, "cycles": 4, "phases": {"Setup": 2.834, "Read Parquet": 1.745, "Upsert to Branch": 76.111, "Data Quality": 157.767, "Fast Forward": 28.265, "Populate AN/MID": 214.034, "Cleanup": 3.45}}, {"name": "magprodcovrg", "total": 473.293, "cycles": 7, "phases": {"Setup": 4.819, "Read Parquet": 2.6679999999999997, "Upsert to Branch": 120.56, "Data Quality": 280.97499999999997, "Fast Forward": 60.681999999999995, "Populate AN/MID": 0.175, "Cleanup": 3.414}}, {"name": "authemail", "total": 397.93100000000004, "cycles": 11, "phases": {"Upsert to Branch": 189.48499999999999, "Data Quality": 156.66500000000002, "Fast Forward": 40.912000000000006, "Read Parquet": 3.1830000000000003, "Populate AN/MID": 0.0, "Cleanup": 4.84, "Setup": 2.846}}, {"name": "altarttitle", "total": 299.966, "cycles": 4, "phases": {"Setup": 2.5629999999999997, "Read Parquet": 1.432, "Upsert to Branch": 64.201, "Data Quality": 53.932, "Fast Forward": 22.633000000000003, "Populate AN/MID": 151.745, "Cleanup": 3.46}}, {"name": "magtitle", "total": 258.09000000000003, "cycles": 4, "phases": {"Setup": 3.6959999999999997, "Read Parquet": 1.725, "Upsert to Branch": 34.227000000000004, "Data Quality": 148.32, "Fast Forward": 27.928, "Populate AN/MID": 40.17, "Cleanup": 2.024}}, {"name": "magprod_g2", "total": 197.779, "cycles": 4, "phases": {"Setup": 0.923, "Read Parquet": 1.6260000000000001, "Upsert to Branch": 28.143, "Data Quality": 124.07000000000001, "Fast Forward": 41.23, "Populate AN/MID": 0.006, "Cleanup": 1.7810000000000001}}, {"name": "artprod_select", "total": 78.26300000000002, "cycles": 1, "phases": {"Setup": 0.856, "Read Parquet": 0.334, "Upsert to Branch": 25.162, "Data Quality": 41.143, "Fast Forward": 10.334, "Populate AN/MID": 0.001, "Cleanup": 0.433}}, {"name": "magprodsum", "total": 21.699, "cycles": 2, "phases": {"Setup": 0.876, "Read Parquet": 0.6739999999999999, "Upsert to Branch": 9.757000000000001, "Data Quality": 6.641, "Fast Forward": 2.708, "Populate AN/MID": 0.043, "Cleanup": 1.0}}, {"name": "magprodactual", "total": 9.586, "cycles": 1, "phases": {"Setup": 0.891, "Read Parquet": 0.496, "Upsert to Branch": 4.667, "Data Quality": 1.908, "Fast Forward": 1.137, "Populate AN/MID": 0.0, "Cleanup": 0.487}}]}};
+        const phaseColors = {"Data Quality": "#e74c3c", "Upsert to Branch": "#3498db", "Populate AN/MID": "#2ecc71", "Fast Forward": "#9b59b6", "Read Parquet": "#f39c12", "Setup": "#95a5a6", "Cleanup": "#7f8c8d"};
+        const charts = {};
+        
+        function showRun(runId) {
+            document.querySelectorAll('.run-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(runId).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Initialize charts for this run if not already done
+            if (!charts[runId]) {
+                initCharts(runId);
+            }
+        }
+        
+        function initCharts(runId) {
+            const data = chartData[runId];
+            
+            // Phase chart
+            const phaseCtx = document.getElementById(runId + '-phase-chart').getContext('2d');
+            charts[runId + '-phase'] = new Chart(phaseCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.phases.map(p => p.name),
+                    datasets: [{
+                        data: data.phases.map(p => p.total),
+                        backgroundColor: data.phases.map(p => phaseColors[p.name] || '#999'),
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const p = data.phases[ctx.dataIndex];
+                                    return [
+                                        `Total: ${p.formatted} (${p.pct.toFixed(1)}%)`,
+                                        `Avg/cycle: ${p.avg_formatted}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Time (seconds)' },
+                            grid: { color: '#eee' }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+            
+            // Table chart
+            const tableCtx = document.getElementById(runId + '-table-chart').getContext('2d');
+            const phases = ["Setup", "Read Parquet", "Upsert to Branch", "Data Quality", "Fast Forward", "Populate AN/MID", "Cleanup"];
+            charts[runId + '-table'] = new Chart(tableCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.tables.map(t => t.name + ' (' + t.cycles + ')'),
+                    datasets: phases.map(phase => ({
+                        label: phase,
+                        data: data.tables.map(t => t.phases[phase] || 0),
+                        backgroundColor: phaseColors[phase] || '#999',
+                    }))
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const t = data.tables[ctx.dataIndex];
+                                    const phase = ctx.dataset.label;
+                                    const val = t.phases[phase] || 0;
+                                    const pct = t.total > 0 ? (val / t.total * 100).toFixed(1) : 0;
+                                    return `${phase}: ${formatDuration(val)} (${pct}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            stacked: true,
+                            title: { display: true, text: 'Time (seconds)' },
+                            grid: { color: '#eee' }
+                        },
+                        y: { 
+                            stacked: true,
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function formatDuration(sec) {
+            if (sec < 60) return Math.round(sec) + 's';
+            if (sec < 3600) {
+                const m = Math.floor(sec / 60);
+                const s = Math.round(sec % 60);
+                return s > 0 ? m + 'm ' + s + 's' : m + 'm';
+            }
+            const h = Math.floor(sec / 3600);
+            const m = Math.round((sec % 3600) / 60);
+            return m > 0 ? h + 'h ' + m + 'm' : h + 'h';
+        }
+        
+        // Initialize first run
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstRunId = Object.keys(chartData)[0];
+            if (firstRunId) initCharts(firstRunId);
+        });
+    </script>
+</body>
+</html>
