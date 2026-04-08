@@ -29,6 +29,11 @@
         .legend-item { display: flex; align-items: center; gap: 5px; }
         .legend-color { width: 12px; height: 12px; border-radius: 2px; }
         .subtitle { font-size: 0.85rem; color: #888; margin-bottom: 15px; }
+        .failed-rules { margin-top: 15px; }
+        .failed-rule { background: #fef2f2; border-left: 4px solid #e74c3c; padding: 12px 15px; margin-bottom: 10px; border-radius: 0 6px 6px 0; }
+        .failed-rule-header { font-weight: 600; color: #b91c1c; margin-bottom: 5px; }
+        .failed-rule-details { font-size: 0.85rem; color: #666; }
+        .failed-rule-details span { display: inline-block; margin-right: 15px; }
     </style>
 </head>
 <body>
@@ -47,6 +52,25 @@
                 <div class="summary-item"><strong>Est. Cost:</strong> <span>$22.91</span></div>
             </div>
             <p class="subtitle" style="margin-top: 10px;">Based on Glue 5.0 G.1X with 10 workers @ $0.44/DPU-hour</p>
+        </div>
+        
+        <div class="card">
+            <h2>Failed Data Quality Rules (4)</h2>
+            <p class="subtitle">Rules that failed during Data Quality phase.</p>
+            <div class="failed-rules">
+                <div class="failed-rule">
+                    <div class="failed-rule-header">artabx (3 failures) <a href="https://teams.microsoft.com/l/message/19:7da757aad536423c91f72ebc4e28aacb@thread.skype/1774680049908?tenantId=50fa36ca-7dd3-44f1-9e3f-1bf39a3963a5&groupId=8835ec97-d606-49fc-9f5a-d0999dd07a13&parentMessageId=1774680049908&teamName=Pipeline%20Validation%20-%20Discussion%20Thread&channelName=CDL-Notifications-Live&createdTime=1774680049908" target="_blank" style="color: #3498db; font-weight: normal; font-size: 0.85rem;">View in Teams</a></div>
+                    <div class="failed-rule-details">
+                        <span>IsComplete "ABSTRACT"</span>
+                    </div>
+                </div>
+                <div class="failed-rule">
+                    <div class="failed-rule-header">artabx (1 failure) <a href="https://teams.microsoft.com/l/message/19:7da757aad536423c91f72ebc4e28aacb@thread.skype/1774674768515?tenantId=50fa36ca-7dd3-44f1-9e3f-1bf39a3963a5&groupId=8835ec97-d606-49fc-9f5a-d0999dd07a13&parentMessageId=1774674768515&teamName=Pipeline%20Validation%20-%20Discussion%20Thread&channelName=CDL-Notifications-Live&createdTime=1774674768515" target="_blank" style="color: #3498db; font-weight: normal; font-size: 0.85rem;">View in Teams</a></div>
+                    <div class="failed-rule-details">
+                        <span>IsComplete "ABSTRACT"</span>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="card">
