@@ -6,6 +6,13 @@ from typing import List
 from .analyzer import AnalysisResult
 from .models import PHASE_COLORS, PHASES
 
+# AWS Glue 5.0 G.1X pricing
+# G.1X = 1 DPU per worker, $0.44 per DPU-hour
+GLUE_WORKERS = 10
+GLUE_DPU_PER_WORKER = 1
+GLUE_COST_PER_DPU_HOUR = 0.44
+GLUE_COST_PER_SECOND = (GLUE_WORKERS * GLUE_DPU_PER_WORKER * GLUE_COST_PER_DPU_HOUR) / 3600
+
 
 def format_duration(seconds: float) -> str:
     """Format duration in human-readable format."""
@@ -21,6 +28,21 @@ def format_duration(seconds: float) -> str:
         return f"{hours}h {mins}m" if mins > 0 else f"{hours}h"
 
 
+def format_cost(dollars: float) -> str:
+    """Format cost in dollars."""
+    if dollars < 0.01:
+        return f"${dollars:.4f}"
+    elif dollars < 1:
+        return f"${dollars:.3f}"
+    else:
+        return f"${dollars:.2f}"
+
+
+def calc_cost(seconds: float) -> float:
+    """Calculate cost for given duration."""
+    return seconds * GLUE_COST_PER_SECOND
+
+
 def generate_html_report(results: List[AnalysisResult], output_path: str) -> None:
     """Generate an HTML report from analysis results."""
     html = _build_html(results)
@@ -34,6 +56,7 @@ def _build_html(results: List[AnalysisResult]) -> str:
     runs_data = []
     for i, result in enumerate(results):
         run_id = result.job_run.job_run_id
+        total_cost = calc_cost(result.total_processing_time)
         
         runs_data.append({
             'id': f'run{i+1}',
@@ -47,6 +70,8 @@ def _build_html(results: List[AnalysisResult]) -> str:
             'phase_stats': result.phase_stats,
             'table_stats': result.table_stats,
             'total_time': result.total_processing_time,
+            'total_cost': total_cost,
+            'total_cost_formatted': format_cost(total_cost),
         })
     
     # Build tabs HTML
@@ -163,6 +188,50 @@ def _build_html(results: List[AnalysisResult]) -> str:
                 }}
             }});
             
+            // Cost chart
+            const costCtx = document.getElementById(runId + '-cost-chart').getContext('2d');
+            charts[runId + '-cost'] = new Chart(costCtx, {{
+                type: 'bar',
+                data: {{
+                    labels: data.phases.map(p => p.name),
+                    datasets: [{{
+                        data: data.phases.map(p => p.cost),
+                        backgroundColor: data.phases.map(p => phaseColors[p.name] || '#999'),
+                        borderRadius: 4,
+                    }}]
+                }},
+                options: {{
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {{
+                        legend: {{ display: false }},
+                        tooltip: {{
+                            callbacks: {{
+                                label: (ctx) => {{
+                                    const p = data.phases[ctx.dataIndex];
+                                    const costPct = data.total_cost > 0 ? (p.cost / data.total_cost * 100).toFixed(1) : 0;
+                                    return [
+                                        `Cost: ${{p.cost_formatted}} (${{costPct}}%)`,
+                                        `Time: ${{p.formatted}}`
+                                    ];
+                                }}
+                            }}
+                        }}
+                    }},
+                    scales: {{
+                        x: {{ 
+                            title: {{ display: true, text: 'Cost ($)' }},
+                            grid: {{ color: '#eee' }},
+                            ticks: {{
+                                callback: (val) => '$' + val.toFixed(2)
+                            }}
+                        }},
+                        y: {{ grid: {{ display: false }} }}
+                    }}
+                }}
+            }});
+            
             // Table chart
             const tableCtx = document.getElementById(runId + '-table-chart').getContext('2d');
             const phases = {json.dumps(PHASES)};
@@ -247,7 +316,9 @@ def _build_run_content(run: dict, active: bool) -> str:
                 <div class="summary-item"><strong>Tables:</strong> <span>{run['tables']}</span></div>
                 <div class="summary-item"><strong>Cycles:</strong> <span>{run['cycles']}</span></div>
                 <div class="summary-item"><strong>Files:</strong> <span>{run['files']}</span></div>
+                <div class="summary-item"><strong>Est. Cost:</strong> <span>{run['total_cost_formatted']}</span></div>
             </div>
+            <p class="subtitle" style="margin-top: 10px;">Based on Glue 5.0 G.1X with {GLUE_WORKERS} workers @ ${GLUE_COST_PER_DPU_HOUR}/DPU-hour</p>
         </div>
         
         <div class="card">
@@ -255,6 +326,14 @@ def _build_run_content(run: dict, active: bool) -> str:
             <p class="subtitle">Where is the job spending its time? Sorted by total time.</p>
             <div class="chart-container">
                 <canvas id="{run['id']}-phase-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Cost by Phase</h2>
+            <p class="subtitle">Estimated cost per phase. Useful for optimization decisions.</p>
+            <div class="chart-container">
+                <canvas id="{run['id']}-cost-chart"></canvas>
             </div>
         </div>
         
@@ -279,6 +358,8 @@ def _prepare_chart_data(run: dict) -> dict:
                 'formatted': format_duration(p.total_sec),
                 'avg_formatted': format_duration(p.avg_sec),
                 'pct': p.pct,
+                'cost': calc_cost(p.total_sec),
+                'cost_formatted': format_cost(calc_cost(p.total_sec)),
             }
             for p in run['phase_stats'] if p.total_sec > 0
         ],
@@ -291,4 +372,5 @@ def _prepare_chart_data(run: dict) -> dict:
             }
             for t in run['table_stats']
         ],
+        'total_cost': run['total_cost'],
     }

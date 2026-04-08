@@ -44,7 +44,9 @@
                 <div class="summary-item"><strong>Tables:</strong> <span>21</span></div>
                 <div class="summary-item"><strong>Cycles:</strong> <span>171</span></div>
                 <div class="summary-item"><strong>Files:</strong> <span>1971</span></div>
+                <div class="summary-item"><strong>Est. Cost:</strong> <span>$22.91</span></div>
             </div>
+            <p class="subtitle" style="margin-top: 10px;">Based on Glue 5.0 G.1X with 10 workers @ $0.44/DPU-hour</p>
         </div>
         
         <div class="card">
@@ -52,6 +54,14 @@
             <p class="subtitle">Where is the job spending its time? Sorted by total time.</p>
             <div class="chart-container">
                 <canvas id="run1-phase-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Cost by Phase</h2>
+            <p class="subtitle">Estimated cost per phase. Useful for optimization decisions.</p>
+            <div class="chart-container">
+                <canvas id="run1-cost-chart"></canvas>
             </div>
         </div>
         
@@ -73,7 +83,7 @@
     </div>
     
     <script>
-        const chartData = {"run1": {"phases": [{"name": "Upsert to Branch", "total": 6666.536000000002, "formatted": "1h 51m", "avg_formatted": "39s", "pct": 35.56572945042563}, {"name": "Data Quality", "total": 6505.612, "formatted": "1h 48m", "avg_formatted": "38s", "pct": 34.70720570644819}, {"name": "Populate AN/MID", "total": 4282.83, "formatted": "1h 11m", "avg_formatted": "25s", "pct": 22.848743794703324}, {"name": "Fast Forward", "total": 1032.8109999999992, "formatted": "17m 12s", "avg_formatted": "6s", "pct": 5.510009486099452}, {"name": "Cleanup", "total": 114.86100000000003, "formatted": "1m 54s", "avg_formatted": "1s", "pct": 0.6127792980350422}, {"name": "Setup", "total": 77.15899999999998, "formatted": "1m 17s", "avg_formatted": "1s", "pct": 0.411640485953333}, {"name": "Read Parquet", "total": 64.46000000000001, "formatted": "1m 4s", "avg_formatted": "1s", "pct": 0.34389177833502066}], "tables": [{"name": "article", "total": 3742.888, "cycles": 10, "phases": {"Setup": 4.206, "Read Parquet": 3.209, "Upsert to Branch": 2874.489, "Data Quality": 428.497, "Fast Forward": 62.715999999999994, "Populate AN/MID": 360.705, "Cleanup": 9.065999999999999}}, {"name": "issue", "total": 3340.3760000000007, "cycles": 10, "phases": {"Upsert to Branch": 314.723, "Data Quality": 2691.872, "Fast Forward": 161.131, "Populate AN/MID": 153.439, "Cleanup": 5.6450000000000005, "Setup": 8.754999999999999, "Read Parquet": 4.811}}, {"name": "artabx", "total": 1186.4449999999997, "cycles": 10, "phases": {"Setup": 3.239, "Read Parquet": 2.335, "Upsert to Branch": 228.90599999999998, "Data Quality": 461.44800000000004, "Fast Forward": 95.021, "Populate AN/MID": 387.41799999999995, "Cleanup": 8.078}}, {"name": "keywords", "total": 937.271, "cycles": 10, "phases": {"Setup": 5.554, "Read Parquet": 4.047, "Upsert to Branch": 168.035, "Data Quality": 157.031, "Fast Forward": 53.928999999999995, "Populate AN/MID": 540.2610000000001, "Cleanup": 8.414}}, {"name": "artlc", "total": 894.5830000000001, "cycles": 9, "phases": {"Setup": 3.5389999999999997, "Read Parquet": 4.414000000000001, "Upsert to Branch": 321.888, "Data Quality": 171.902, "Fast Forward": 20.310000000000002, "Populate AN/MID": 365.0, "Cleanup": 7.53}}, {"name": "delc", "total": 859.386, "cycles": 8, "phases": {"Setup": 5.015, "Read Parquet": 3.311, "Upsert to Branch": 125.705, "Data Quality": 291.228, "Fast Forward": 56.798, "Populate AN/MID": 370.621, "Cleanup": 6.707999999999999}}, {"name": "artlang", "total": 830.292, "cycles": 9, "phases": {"Upsert to Branch": 190.93800000000002, "Data Quality": 169.198, "Fast Forward": 56.832, "Populate AN/MID": 402.063, "Cleanup": 7.623, "Setup": 1.942, "Read Parquet": 1.696}}, {"name": "artauth", "total": 827.6769999999999, "cycles": 10, "phases": {"Setup": 11.556, "Read Parquet": 9.172, "Upsert to Branch": 547.2869999999999, "Data Quality": 218.852, "Fast Forward": 35.881, "Populate AN/MID": 0.159, "Cleanup": 4.77}}, {"name": "doian", "total": 818.7379999999999, "cycles": 10, "phases": {"Setup": 0.905, "Read Parquet": 4.635, "Upsert to Branch": 164.28400000000002, "Data Quality": 166.25300000000001, "Fast Forward": 60.446999999999996, "Populate AN/MID": 414.098, "Cleanup": 8.116}}, {"name": "sician", "total": 768.195, "cycles": 10, "phases": {"Setup": 2.2439999999999998, "Read Parquet": 2.398, "Upsert to Branch": 199.239, "Data Quality": 138.583, "Fast Forward": 28.034, "Populate AN/MID": 389.804, "Cleanup": 7.892999999999999}}, {"name": "artkwd", "total": 726.036, "cycles": 10, "phases": {"Setup": 1.764, "Read Parquet": 2.396, "Upsert to Branch": 178.99399999999997, "Data Quality": 130.079, "Fast Forward": 29.046, "Populate AN/MID": 375.58299999999997, "Cleanup": 8.174}}, {"name": "magprodcovrg", "total": 688.279, "cycles": 9, "phases": {"Setup": 5.992999999999999, "Read Parquet": 2.9730000000000003, "Upsert to Branch": 235.73199999999997, "Data Quality": 353.656, "Fast Forward": 85.812, "Populate AN/MID": 0.015000000000000001, "Cleanup": 4.098}}, {"name": "authafflcode", "total": 570.188, "cycles": 10, "phases": {"Upsert to Branch": 340.77199999999993, "Data Quality": 195.426, "Fast Forward": 24.422000000000004, "Populate AN/MID": 0.004, "Cleanup": 4.289, "Read Parquet": 3.398, "Setup": 1.877}}, {"name": "affiliation", "total": 471.332, "cycles": 10, "phases": {"Setup": 3.0509999999999997, "Read Parquet": 2.608, "Upsert to Branch": 155.61499999999998, "Data Quality": 116.83500000000001, "Fast Forward": 24.343, "Populate AN/MID": 163.11899999999997, "Cleanup": 5.761}}, {"name": "magprod_g2", "total": 424.285, "cycles": 7, "phases": {"Setup": 0.897, "Read Parquet": 1.7530000000000001, "Upsert to Branch": 157.06799999999998, "Data Quality": 181.19700000000003, "Fast Forward": 80.16199999999999, "Populate AN/MID": 0.012, "Cleanup": 3.1959999999999997}}, {"name": "artconcept_an", "total": 413.68499999999995, "cycles": 4, "phases": {"Setup": 2.53, "Read Parquet": 1.888, "Upsert to Branch": 75.882, "Data Quality": 122.05399999999999, "Fast Forward": 32.44, "Populate AN/MID": 175.70100000000002, "Cleanup": 3.19}}, {"name": "author", "total": 353.279, "cycles": 10, "phases": {"Setup": 8.764999999999999, "Read Parquet": 5.3709999999999996, "Upsert to Branch": 153.042, "Data Quality": 132.10899999999998, "Fast Forward": 49.456, "Populate AN/MID": 0.052, "Cleanup": 4.484000000000001}}, {"name": "authemail", "total": 339.507, "cycles": 9, "phases": {"Setup": 0.907, "Read Parquet": 1.5570000000000002, "Upsert to Branch": 154.94, "Data Quality": 141.67, "Fast Forward": 36.57, "Populate AN/MID": 0.0, "Cleanup": 3.8630000000000004}}, {"name": "chronology_an", "total": 296.553, "cycles": 2, "phases": {"Setup": 1.892, "Read Parquet": 0.812, "Upsert to Branch": 32.211, "Data Quality": 167.22199999999998, "Fast Forward": 18.872, "Populate AN/MID": 74.166, "Cleanup": 1.3780000000000001}}, {"name": "altarttitle", "total": 193.971, "cycles": 3, "phases": {"Setup": 1.641, "Read Parquet": 1.318, "Upsert to Branch": 40.697, "Data Quality": 32.150999999999996, "Fast Forward": 14.066000000000003, "Populate AN/MID": 101.981, "Cleanup": 2.117}}, {"name": "magtitle", "total": 61.303000000000004, "cycles": 1, "phases": {"Setup": 0.887, "Read Parquet": 0.358, "Upsert to Branch": 6.089, "Data Quality": 38.349, "Fast Forward": 6.523, "Populate AN/MID": 8.629, "Cleanup": 0.468}}]}};
+        const chartData = {"run1": {"phases": [{"name": "Upsert to Branch", "total": 6666.536000000002, "formatted": "1h 51m", "avg_formatted": "39s", "pct": 35.56572945042563, "cost": 8.147988444444447, "cost_formatted": "$8.15"}, {"name": "Data Quality", "total": 6505.612, "formatted": "1h 48m", "avg_formatted": "38s", "pct": 34.70720570644819, "cost": 7.951303555555557, "cost_formatted": "$7.95"}, {"name": "Populate AN/MID", "total": 4282.83, "formatted": "1h 11m", "avg_formatted": "25s", "pct": 22.848743794703324, "cost": 5.234570000000001, "cost_formatted": "$5.23"}, {"name": "Fast Forward", "total": 1032.8109999999992, "formatted": "17m 12s", "avg_formatted": "6s", "pct": 5.510009486099452, "cost": 1.262324555555555, "cost_formatted": "$1.26"}, {"name": "Cleanup", "total": 114.86100000000003, "formatted": "1m 54s", "avg_formatted": "1s", "pct": 0.6127792980350422, "cost": 0.14038566666666674, "cost_formatted": "$0.140"}, {"name": "Setup", "total": 77.15899999999998, "formatted": "1m 17s", "avg_formatted": "1s", "pct": 0.411640485953333, "cost": 0.09430544444444443, "cost_formatted": "$0.094"}, {"name": "Read Parquet", "total": 64.46000000000001, "formatted": "1m 4s", "avg_formatted": "1s", "pct": 0.34389177833502066, "cost": 0.07878444444444446, "cost_formatted": "$0.079"}], "tables": [{"name": "article", "total": 3742.888, "cycles": 10, "phases": {"Setup": 4.206, "Read Parquet": 3.209, "Upsert to Branch": 2874.489, "Data Quality": 428.497, "Fast Forward": 62.715999999999994, "Populate AN/MID": 360.705, "Cleanup": 9.065999999999999}}, {"name": "issue", "total": 3340.3760000000007, "cycles": 10, "phases": {"Upsert to Branch": 314.723, "Data Quality": 2691.872, "Fast Forward": 161.131, "Populate AN/MID": 153.439, "Cleanup": 5.6450000000000005, "Setup": 8.754999999999999, "Read Parquet": 4.811}}, {"name": "artabx", "total": 1186.4449999999997, "cycles": 10, "phases": {"Setup": 3.239, "Read Parquet": 2.335, "Upsert to Branch": 228.90599999999998, "Data Quality": 461.44800000000004, "Fast Forward": 95.021, "Populate AN/MID": 387.41799999999995, "Cleanup": 8.078}}, {"name": "keywords", "total": 937.271, "cycles": 10, "phases": {"Setup": 5.554, "Read Parquet": 4.047, "Upsert to Branch": 168.035, "Data Quality": 157.031, "Fast Forward": 53.928999999999995, "Populate AN/MID": 540.2610000000001, "Cleanup": 8.414}}, {"name": "artlc", "total": 894.5830000000001, "cycles": 9, "phases": {"Setup": 3.5389999999999997, "Read Parquet": 4.414000000000001, "Upsert to Branch": 321.888, "Data Quality": 171.902, "Fast Forward": 20.310000000000002, "Populate AN/MID": 365.0, "Cleanup": 7.53}}, {"name": "delc", "total": 859.386, "cycles": 8, "phases": {"Setup": 5.015, "Read Parquet": 3.311, "Upsert to Branch": 125.705, "Data Quality": 291.228, "Fast Forward": 56.798, "Populate AN/MID": 370.621, "Cleanup": 6.707999999999999}}, {"name": "artlang", "total": 830.292, "cycles": 9, "phases": {"Upsert to Branch": 190.93800000000002, "Data Quality": 169.198, "Fast Forward": 56.832, "Populate AN/MID": 402.063, "Cleanup": 7.623, "Setup": 1.942, "Read Parquet": 1.696}}, {"name": "artauth", "total": 827.6769999999999, "cycles": 10, "phases": {"Setup": 11.556, "Read Parquet": 9.172, "Upsert to Branch": 547.2869999999999, "Data Quality": 218.852, "Fast Forward": 35.881, "Populate AN/MID": 0.159, "Cleanup": 4.77}}, {"name": "doian", "total": 818.7379999999999, "cycles": 10, "phases": {"Setup": 0.905, "Read Parquet": 4.635, "Upsert to Branch": 164.28400000000002, "Data Quality": 166.25300000000001, "Fast Forward": 60.446999999999996, "Populate AN/MID": 414.098, "Cleanup": 8.116}}, {"name": "sician", "total": 768.195, "cycles": 10, "phases": {"Setup": 2.2439999999999998, "Read Parquet": 2.398, "Upsert to Branch": 199.239, "Data Quality": 138.583, "Fast Forward": 28.034, "Populate AN/MID": 389.804, "Cleanup": 7.892999999999999}}, {"name": "artkwd", "total": 726.036, "cycles": 10, "phases": {"Setup": 1.764, "Read Parquet": 2.396, "Upsert to Branch": 178.99399999999997, "Data Quality": 130.079, "Fast Forward": 29.046, "Populate AN/MID": 375.58299999999997, "Cleanup": 8.174}}, {"name": "magprodcovrg", "total": 688.279, "cycles": 9, "phases": {"Setup": 5.992999999999999, "Read Parquet": 2.9730000000000003, "Upsert to Branch": 235.73199999999997, "Data Quality": 353.656, "Fast Forward": 85.812, "Populate AN/MID": 0.015000000000000001, "Cleanup": 4.098}}, {"name": "authafflcode", "total": 570.188, "cycles": 10, "phases": {"Upsert to Branch": 340.77199999999993, "Data Quality": 195.426, "Fast Forward": 24.422000000000004, "Populate AN/MID": 0.004, "Cleanup": 4.289, "Read Parquet": 3.398, "Setup": 1.877}}, {"name": "affiliation", "total": 471.332, "cycles": 10, "phases": {"Setup": 3.0509999999999997, "Read Parquet": 2.608, "Upsert to Branch": 155.61499999999998, "Data Quality": 116.83500000000001, "Fast Forward": 24.343, "Populate AN/MID": 163.11899999999997, "Cleanup": 5.761}}, {"name": "magprod_g2", "total": 424.285, "cycles": 7, "phases": {"Setup": 0.897, "Read Parquet": 1.7530000000000001, "Upsert to Branch": 157.06799999999998, "Data Quality": 181.19700000000003, "Fast Forward": 80.16199999999999, "Populate AN/MID": 0.012, "Cleanup": 3.1959999999999997}}, {"name": "artconcept_an", "total": 413.68499999999995, "cycles": 4, "phases": {"Setup": 2.53, "Read Parquet": 1.888, "Upsert to Branch": 75.882, "Data Quality": 122.05399999999999, "Fast Forward": 32.44, "Populate AN/MID": 175.70100000000002, "Cleanup": 3.19}}, {"name": "author", "total": 353.279, "cycles": 10, "phases": {"Setup": 8.764999999999999, "Read Parquet": 5.3709999999999996, "Upsert to Branch": 153.042, "Data Quality": 132.10899999999998, "Fast Forward": 49.456, "Populate AN/MID": 0.052, "Cleanup": 4.484000000000001}}, {"name": "authemail", "total": 339.507, "cycles": 9, "phases": {"Setup": 0.907, "Read Parquet": 1.5570000000000002, "Upsert to Branch": 154.94, "Data Quality": 141.67, "Fast Forward": 36.57, "Populate AN/MID": 0.0, "Cleanup": 3.8630000000000004}}, {"name": "chronology_an", "total": 296.553, "cycles": 2, "phases": {"Setup": 1.892, "Read Parquet": 0.812, "Upsert to Branch": 32.211, "Data Quality": 167.22199999999998, "Fast Forward": 18.872, "Populate AN/MID": 74.166, "Cleanup": 1.3780000000000001}}, {"name": "altarttitle", "total": 193.971, "cycles": 3, "phases": {"Setup": 1.641, "Read Parquet": 1.318, "Upsert to Branch": 40.697, "Data Quality": 32.150999999999996, "Fast Forward": 14.066000000000003, "Populate AN/MID": 101.981, "Cleanup": 2.117}}, {"name": "magtitle", "total": 61.303000000000004, "cycles": 1, "phases": {"Setup": 0.887, "Read Parquet": 0.358, "Upsert to Branch": 6.089, "Data Quality": 38.349, "Fast Forward": 6.523, "Populate AN/MID": 8.629, "Cleanup": 0.468}}], "total_cost": 22.90966211111112}};
         const phaseColors = {"Data Quality": "#e74c3c", "Upsert to Branch": "#3498db", "Populate AN/MID": "#2ecc71", "Fast Forward": "#9b59b6", "Read Parquet": "#f39c12", "Setup": "#95a5a6", "Cleanup": "#7f8c8d"};
         const charts = {};
         
@@ -126,6 +136,50 @@
                         x: { 
                             title: { display: true, text: 'Time (seconds)' },
                             grid: { color: '#eee' }
+                        },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+            
+            // Cost chart
+            const costCtx = document.getElementById(runId + '-cost-chart').getContext('2d');
+            charts[runId + '-cost'] = new Chart(costCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.phases.map(p => p.name),
+                    datasets: [{
+                        data: data.phases.map(p => p.cost),
+                        backgroundColor: data.phases.map(p => phaseColors[p.name] || '#999'),
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => {
+                                    const p = data.phases[ctx.dataIndex];
+                                    const costPct = data.total_cost > 0 ? (p.cost / data.total_cost * 100).toFixed(1) : 0;
+                                    return [
+                                        `Cost: ${p.cost_formatted} (${costPct}%)`,
+                                        `Time: ${p.formatted}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Cost ($)' },
+                            grid: { color: '#eee' },
+                            ticks: {
+                                callback: (val) => '$' + val.toFixed(2)
+                            }
                         },
                         y: { grid: { display: false } }
                     }
